@@ -19,7 +19,6 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      # Установка Android SDK через packages (корректно для v3)
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -28,7 +27,6 @@ jobs:
             platforms;android-34
             build-tools;34.0.0
 
-      # Поставим системный gradle только чтобы сгенерить wrapper
       - name: Install system Gradle (for wrapper)
         run: |
           sudo apt-get update
@@ -40,7 +38,6 @@ jobs:
           gradle wrapper --gradle-version 8.7 --distribution-type all
           chmod +x gradlew
 
-      # Диагностика (полезно, если что-то ещё не так)
       - name: Show Gradle projects
         run: ./gradlew projects
 
