@@ -5,16 +5,20 @@ plugins {
 
 android {
     namespace = "com.example.pairtrader"
-    compileSdk = 35
+-   compileSdk = 35
++   compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.pairtrader"
         minSdk = 24
-        targetSdk = 35
+-       targetSdk = 35
++       targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         manifestPlaceholders["appLabel"] = "PairTrader"
     }
+    ...
+
 
     buildTypes {
         release {
