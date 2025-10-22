@@ -5,20 +5,16 @@ plugins {
 
 android {
     namespace = "com.example.pairtrader"
--   compileSdk = 35
-+   compileSdk = 34
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.pairtrader"
         minSdk = 24
--       targetSdk = 35
-+       targetSdk = 34
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         manifestPlaceholders["appLabel"] = "PairTrader"
     }
-    ...
-
 
     buildTypes {
         release {
@@ -28,7 +24,9 @@ android {
                 "proguard-rules.pro"
             )
         }
-        debug { isMinifyEnabled = false }
+        debug {
+            isMinifyEnabled = false
+        }
     }
 
     buildFeatures { compose = true }
@@ -37,7 +35,7 @@ android {
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2025.01.00")
+    val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
@@ -47,16 +45,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3:1.3.0")
 
-    // HTTP + JSON
+    // опционально
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20240303")
-
-    // DataStore (presets)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-
-    // WorkManager (alerts)
     implementation("androidx.work:work-runtime-ktx:2.9.1")
 
-    // Debug preview tools
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
