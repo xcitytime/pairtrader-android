@@ -1,52 +1,15 @@
-name: Android CI (Assemble Debug APK)
-
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      # Ставим Android SDK + конкретные build-tools (стабильный набор)
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-levels: 34
-          target: default
-          components: build-tools;34.0.0
-
-      # 1) Ставим системный gradle только чтобы выполнить gradle wrapper
-      - name: Install system Gradle (for wrapper generation)
+# 3) Диагностика структуры и модулей
+      - name: Show repository tree
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gradle
-          gradle --version
+          pwd
+          ls -R
 
-      # 2) Генерируем Gradle Wrapper нужной версии (8.7) и делаем его исполняемым
-      - name: Generate Gradle Wrapper 8.7
-        run: |
-          gradle wrapper --gradle-version 8.7 --distribution-type all
-          chmod +x gradlew
+      - name: Show Gradle projects
+        run: ./gradlew projects
 
-      # 3) Собираем через wrapper
+      - name: Show app tasks (if app exists)
+        run: ./gradlew :app:tasks --all || true
+
+      # 4) Сборка через wrapper
       - name: Build Debug APK with Wrapper
         run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
-
-      # 4) Публикуем APK
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
