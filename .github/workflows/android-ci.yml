@@ -19,20 +19,23 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      # Ставим Android SDK, платформу и build-tools гарантированно доступные на раннерах
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          api-levels: 34
+          target: default
+          components: build-tools;34.0.0
 
-      - name: Install Gradle via SDKMAN
+      # Используем системный gradle
+      - name: Install Gradle
         run: |
-          curl -s "https://get.sdkman.io" | bash
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
-          sdk install gradle 8.7
+          sudo apt-get update
+          sudo apt-get install -y gradle
           gradle --version
 
       - name: Build Debug APK
-        run: |
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
-          gradle assembleDebug --no-daemon --stacktrace
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
