@@ -19,14 +19,16 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK (API 34 + build-tools 34.0.0)
+      # Установка Android SDK через packages (корректно для v3)
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-levels: 34
-          target: default
-          components: build-tools;34.0.0
+          accept-android-sdk-licenses: true
+          packages: |
+            platforms;android-34
+            build-tools;34.0.0
 
-      # Ставим системный Gradle, только чтобы сгенерировать wrapper
+      # Поставим системный gradle только чтобы сгенерить wrapper
       - name: Install system Gradle (for wrapper)
         run: |
           sudo apt-get update
@@ -38,18 +40,9 @@ jobs:
           gradle wrapper --gradle-version 8.7 --distribution-type all
           chmod +x gradlew
 
-      # --- Диагностика (помогает, если что-то не так со структурой) ---
-      - name: Show repository tree
-        run: |
-          pwd
-          ls -R
-
+      # Диагностика (полезно, если что-то ещё не так)
       - name: Show Gradle projects
         run: ./gradlew projects
-
-      - name: Show app tasks (if app exists)
-        run: ./gradlew :app:tasks --all || true
-      # ---------------------------------------------------------------
 
       - name: Build Debug APK with Wrapper
         run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
@@ -59,4 +52,3 @@ jobs:
         with:
           name: app-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
-
