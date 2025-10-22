@@ -1,4 +1,44 @@
-# 3) Диагностика структуры и модулей
+name: Android CI (Assemble Debug APK)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK (API 34 + build-tools 34.0.0)
+        uses: android-actions/setup-android@v3
+        with:
+          api-levels: 34
+          target: default
+          components: build-tools;34.0.0
+
+      # Ставим системный Gradle, только чтобы сгенерировать wrapper
+      - name: Install system Gradle (for wrapper)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gradle
+          gradle --version
+
+      - name: Generate Gradle Wrapper 8.7
+        run: |
+          gradle wrapper --gradle-version 8.7 --distribution-type all
+          chmod +x gradlew
+
+      # --- Диагностика (помогает, если что-то не так со структурой) ---
       - name: Show repository tree
         run: |
           pwd
@@ -9,7 +49,14 @@
 
       - name: Show app tasks (if app exists)
         run: ./gradlew :app:tasks --all || true
+      # ---------------------------------------------------------------
 
-      # 4) Сборка через wrapper
       - name: Build Debug APK with Wrapper
         run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
