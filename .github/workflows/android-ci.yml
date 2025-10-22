@@ -19,7 +19,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      # Ставим Android SDK, платформу и build-tools гарантированно доступные на раннерах
+      # Ставим Android SDK + конкретные build-tools (стабильный набор)
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -27,16 +27,24 @@ jobs:
           target: default
           components: build-tools;34.0.0
 
-      # Используем системный gradle
-      - name: Install Gradle
+      # 1) Ставим системный gradle только чтобы выполнить gradle wrapper
+      - name: Install system Gradle (for wrapper generation)
         run: |
           sudo apt-get update
           sudo apt-get install -y gradle
           gradle --version
 
-      - name: Build Debug APK
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+      # 2) Генерируем Gradle Wrapper нужной версии (8.7) и делаем его исполняемым
+      - name: Generate Gradle Wrapper 8.7
+        run: |
+          gradle wrapper --gradle-version 8.7 --distribution-type all
+          chmod +x gradlew
 
+      # 3) Собираем через wrapper
+      - name: Build Debug APK with Wrapper
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+      # 4) Публикуем APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
